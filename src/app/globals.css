@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@theme {
+  --color-neon-cyan: #00f3ff;
+  --color-hot-pink: #ff007f;
+  --color-amber: #ffbf00;
+  --color-bg-dark: #0b0d1b;
+  --font-pixel: var(--font-press-start);
+}
+
+@layer utilities {
+  .text-shadow-neon {
+    text-shadow: 0 0 5px var(--color-neon-cyan), 0 0 10px var(--color-neon-cyan);
+  }
+  .text-shadow-pink {
+    text-shadow: 0 0 5px var(--color-hot-pink), 0 0 10px var(--color-hot-pink);
+  }
+  .box-shadow-neon {
+    box-shadow: 0 0 10px var(--color-neon-cyan), inset 0 0 10px var(--color-neon-cyan);
+  }
+  .box-shadow-pink {
+    box-shadow: 0 0 10px var(--color-hot-pink), inset 0 0 10px var(--color-hot-pink);
+  }
+  .animate-marquee {
+    animation: marquee 20s linear infinite;
+  }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
