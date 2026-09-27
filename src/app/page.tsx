@@ -292,12 +292,12 @@ export default function Home() {
             />
           </motion.div>
 
-          <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 mt-10 text-white mix-blend-normal">
+          <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 mt-96 flex flex-col items-center text-white mix-blend-normal">
             <motion.h2 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              className="text-sm md:text-base uppercase tracking-[0.3em] text-black/50 mb-6"
+              className="text-sm md:text-base uppercase tracking-[0.3em] text-white/70 mb-6 text-center"
             >
               The Official Students' Representative Body
             </motion.h2>
@@ -306,13 +306,9 @@ export default function Home() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="font-serif text-6xl md:text-[8rem] lg:text-[11rem] leading-[0.85] tracking-tighter text-black"
+              className="mt-4"
             >
-              <h1>Students'</h1>
-              <h1 className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
-                <span className="italic text-black/70">Council</span> 
-                <span className="text-xl md:text-4xl font-sans tracking-normal font-light border border-black/20 rounded-full px-8 py-3">2026—27</span>
-              </h1>
+              <span className="text-xl md:text-2xl font-sans tracking-widest font-light border border-white/30 backdrop-blur-md rounded-full px-8 py-3">2026—27</span>
             </motion.div>
           </motion.div>
         </section>
