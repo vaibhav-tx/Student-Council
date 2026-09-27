@@ -1,16 +1,15 @@
 import type { Metadata } from 'next'
-import { Inter, Press_Start_2P } from 'next/font/google'
+import { Inter, Playfair_Display } from 'next/font/google'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
-const pressStart2P = Press_Start_2P({ 
-  weight: '400',
+const playfair = Playfair_Display({ 
   subsets: ['latin'],
-  variable: '--font-press-start'
+  variable: '--font-playfair'
 })
 
 export const metadata: Metadata = {
-  title: 'STUDENTS\' COUNCIL 2026-27 | FRCRCE',
+  title: 'STUDENTS\' COUNCIL | FRCRCE',
   description: 'Empowering Student Voice - Building Tomorrow\'s Leaders.',
 }
 
@@ -21,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${inter.variable} ${pressStart2P.variable} font-sans bg-[#0b0d1b] text-white antialiased`}>
+      <body className={`${inter.variable} ${playfair.variable} font-sans bg-[#0a0a0a] text-[#ededed] antialiased`}>
         {children}
       </body>
     </html>

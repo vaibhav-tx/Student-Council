@@ -1,32 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  --color-neon-cyan: #00f3ff;
-  --color-hot-pink: #ff007f;
-  --color-amber: #ffbf00;
-  --color-bg-dark: #0b0d1b;
-  --font-pixel: var(--font-press-start);
+  --color-bg-dark: #0a0a0a;
+  --color-text-light: #ededed;
+  --font-serif: var(--font-playfair);
+  --font-sans: var(--font-inter);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-light);
+  }
 }
 
 @layer utilities {
-  .text-shadow-neon {
-    text-shadow: 0 0 5px var(--color-neon-cyan), 0 0 10px var(--color-neon-cyan);
-  }
-  .text-shadow-pink {
-    text-shadow: 0 0 5px var(--color-hot-pink), 0 0 10px var(--color-hot-pink);
-  }
-  .box-shadow-neon {
-    box-shadow: 0 0 10px var(--color-neon-cyan), inset 0 0 10px var(--color-neon-cyan);
-  }
-  .box-shadow-pink {
-    box-shadow: 0 0 10px var(--color-hot-pink), inset 0 0 10px var(--color-hot-pink);
-  }
-  .animate-marquee {
-    animation: marquee 20s linear infinite;
+  .text-outline {
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
+    color: transparent;
   }
 }
 
-@keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+/* Custom Scrollbar for sleekness */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
 }

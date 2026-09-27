@@ -1,231 +1,134 @@
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { Calendar, Volume2, ArrowUpRight } from 'lucide-react';
+import { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ReactLenis } from '@studio-freight/react-lenis';
 
-// ==========================================
-// PRELOADER COMPONENT
-// ==========================================
-const Preloader = ({ onComplete }: { onComplete: () => void }) => {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    // Lock body scroll
-    document.body.style.overflow = 'hidden';
-    
-    const interval = setInterval(() => {
-      setProgress(p => {
-        if (p >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            onComplete();
-            document.body.style.overflow = 'auto'; // unlock scroll
-          }, 800);
-          return 100;
-        }
-        return p + Math.floor(Math.random() * 20) + 5;
-      });
-    }, 150);
-    return () => {
-      clearInterval(interval);
-      document.body.style.overflow = 'auto';
-    };
-  }, [onComplete]);
-
-  return (
-    <motion.div 
-      className="fixed inset-0 z-[100] bg-[#05060d] flex flex-col items-center justify-center"
-      exit={{ y: "-100%", transition: { duration: 1, ease: [0.76, 0, 0.24, 1] } }}
-    >
-      <div className="w-80 font-pixel text-neon-cyan flex flex-col items-center">
-        <motion.div 
-          animate={{ opacity: [1, 0, 1] }} 
-          transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-          className="mb-8 text-xl tracking-widest text-shadow-neon"
-        >
-          SYS_BOOT_SEQ...
-        </motion.div>
-        
-        <div className="w-full h-4 border-2 border-neon-cyan p-[2px] relative overflow-hidden">
-          <motion.div 
-            className="h-full bg-neon-cyan"
-            initial={{ width: "0%" }}
-            animate={{ width: `${Math.min(progress, 100)}%` }}
-            transition={{ type: "tween", ease: "linear", duration: 0.2 }}
-          />
-        </div>
-        
-        <div className="mt-6 flex justify-between w-full text-xs font-mono text-gray-500">
-          <span>LOADING ASSETS</span>
-          <span>{Math.min(progress, 100)}%</span>
-        </div>
-      </div>
-      
-      {/* Glitch effects overlays */}
-      <div className="absolute inset-0 pointer-events-none opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
-    </motion.div>
-  );
-};
-
-
-// ==========================================
-// MAIN PAGE
-// ==========================================
 export default function Home() {
-  const [loading, setLoading] = useState(true);
-  
-  // Scroll references
   const containerRef = useRef(null);
   
   // Hero Parallax
-  const { scrollYProgress } = useScroll();
-  const heroY = useTransform(scrollYProgress, [0, 0.2], ["0%", "50%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-
-  // Gallery Horizontal Scroll
-  const galleryRef = useRef(null);
-  const { scrollYProgress: galleryScrollY } = useScroll({
-    target: galleryRef,
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
   });
-  const xGallery = useTransform(galleryScrollY, [0, 1], ["0%", "-66.66%"]);
+  
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+
+  // Image Parallax
+  const imageRef = useRef(null);
+  const { scrollYProgress: imgScroll } = useScroll({
+    target: imageRef,
+    offset: ["start end", "end start"]
+  });
+  const imgScale = useTransform(imgScroll, [0, 1], [1.1, 1]);
 
   return (
     <ReactLenis root options={{ lerp: 0.05, smoothWheel: true }}>
-      <main ref={containerRef} className="bg-[#0b0d1b] text-white overflow-x-hidden selection:bg-hot-pink selection:text-white">
+      <main ref={containerRef} className="bg-[#0a0a0a] text-[#ededed] min-h-screen selection:bg-white selection:text-black font-sans">
         
-        <AnimatePresence>
-          {loading && <Preloader onComplete={() => setLoading(false)} />}
-        </AnimatePresence>
-
-        {/* NAVIGATION */}
-        <motion.nav 
-          initial={{ y: -100 }}
-          animate={{ y: 0 }}
-          transition={{ delay: 1, duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-          className="fixed top-0 w-full z-50 bg-[#0b0d1b]/50 backdrop-blur-md border-b border-white/10 mix-blend-screen"
-        >
-          <div className="max-w-[1400px] mx-auto px-6 py-4 flex justify-between items-center">
-            <div className="flex items-baseline gap-2">
-              <span className="font-pixel text-neon-cyan text-xl">STUCO</span>
-              <span className="text-xs font-mono text-gray-500">FRCRCE</span>
-            </div>
-            
-            <div className="hidden md:flex items-center gap-10 font-mono text-xs tracking-widest">
-              <a href="#events" className="hover:text-neon-cyan transition-colors">/ EVENTS</a>
-              <a href="#council" className="hover:text-hot-pink transition-colors">/ COUNCIL</a>
-              <a href="#gallery" className="hover:text-amber transition-colors">/ GALLERY</a>
-              <a href="#sponsors" className="hover:text-white transition-colors">/ SPONSORS</a>
-            </div>
-            
-            <button className="text-neon-cyan hover:scale-110 transition-transform">
-              <Volume2 size={24} />
-            </button>
+        {/* NAV */}
+        <nav className="fixed top-0 w-full z-50 mix-blend-difference px-8 py-8 flex justify-between items-center pointer-events-none">
+          <div className="font-serif text-2xl tracking-tighter pointer-events-auto">STUCO.</div>
+          <div className="hidden md:flex gap-12 text-sm uppercase tracking-widest pointer-events-auto opacity-70 hover:opacity-100 transition-opacity">
+            <a href="#about" className="hover:text-white transition-colors">About</a>
+            <a href="#events" className="hover:text-white transition-colors">Events</a>
+            <a href="#council" className="hover:text-white transition-colors">Directory</a>
           </div>
-        </motion.nav>
+          <div className="text-sm uppercase tracking-widest pointer-events-auto">Menu</div>
+        </nav>
 
-        {/* ================= HERO SECTION ================= */}
-        <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
-          {/* Background Image with Parallax */}
-          <motion.div 
-            style={{ y: heroY, opacity: heroOpacity }}
-            className="absolute inset-0 w-full h-full z-0"
-          >
-            <div className="absolute inset-0 bg-[#0b0d1b]/70 z-10" />
-            <img 
-              src="https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?q=80&w=2070&auto=format&fit=crop" 
-              alt="Cyberpunk City" 
-              className="w-full h-full object-cover filter contrast-125 saturate-150"
-            />
-          </motion.div>
-
-          <div className="relative z-10 w-full max-w-[1400px] px-6 mt-20">
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={!loading ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-              transition={{ duration: 1, delay: 0.2, ease: [0.76, 0, 0.24, 1] }}
+        {/* HERO */}
+        <section className="relative h-[100svh] w-full flex flex-col justify-center px-8 md:px-16 overflow-hidden">
+          <motion.div style={{ y: heroY, opacity: heroOpacity }} className="z-10 mt-20">
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              className="text-sm md:text-base uppercase tracking-[0.3em] text-white/50 mb-6"
             >
-              <h2 className="font-mono text-hot-pink tracking-[0.3em] mb-4 text-sm md:text-base">FRCRCE OFFICIAL</h2>
-              <h1 className="font-pixel text-4xl md:text-7xl lg:text-[6rem] leading-[1.1] text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan via-white to-hot-pink filter drop-shadow-[0_0_15px_rgba(0,243,255,0.5)]">
-                STUDENTS'<br/>COUNCIL<br/>2026-27
+              Fr. Conceicao Rodrigues College of Engineering
+            </motion.h2>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="font-serif text-6xl md:text-[8rem] lg:text-[11rem] leading-[0.85] tracking-tighter"
+            >
+              <h1>Students'</h1>
+              <h1 className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
+                <span className="italic text-white/70">Council</span> 
+                <span className="text-xl md:text-4xl font-sans tracking-normal font-light border border-white/20 rounded-full px-8 py-3">2026—27</span>
               </h1>
             </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={!loading ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-              transition={{ duration: 1, delay: 0.6, ease: [0.76, 0, 0.24, 1] }}
-              className="mt-16 flex flex-col sm:flex-row gap-6"
-            >
-              <button className="px-8 py-4 bg-neon-cyan text-[#0b0d1b] font-pixel text-xs hover:bg-white transition-all box-shadow-neon flex items-center justify-center gap-3 group">
-                ENTER SYSTEM <ArrowUpRight className="group-hover:rotate-45 transition-transform" size={16}/>
-              </button>
-              <button className="px-8 py-4 border border-hot-pink text-hot-pink font-pixel text-xs hover:bg-hot-pink/10 transition-all box-shadow-pink">
-                VIEW DIRECTORY
-              </button>
-            </motion.div>
-          </div>
+          </motion.div>
           
-          {/* Scroll Indicator */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={!loading ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ delay: 1.5, duration: 1 }}
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-10"
-          >
-            <span className="font-mono text-[10px] tracking-widest text-gray-500 uppercase">Scroll Down</span>
-            <div className="w-[1px] h-12 bg-white/20 relative overflow-hidden">
+          <div className="absolute bottom-12 left-8 md:left-16 flex flex-col gap-2">
+            <span className="text-xs uppercase tracking-widest text-white/40">Scroll to explore</span>
+            <div className="w-[1px] h-16 bg-white/20 relative overflow-hidden">
               <motion.div 
-                className="w-full h-1/2 bg-neon-cyan absolute top-0"
+                className="w-full h-1/2 bg-white absolute top-0"
                 animate={{ y: ["-100%", "200%"] }}
-                transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
               />
             </div>
-          </motion.div>
+          </div>
         </section>
 
-        {/* ================= EVENTS (SCROLL REVEAL) ================= */}
-        <section id="events" className="relative py-32 bg-[#05060d] z-20">
-          <div className="max-w-[1400px] mx-auto px-6">
+        {/* ABOUT / COUNCIL GROUP */}
+        <section id="about" className="py-32 md:py-48 px-8 md:px-16">
+          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-20 items-center">
             <motion.div 
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8 }}
-              className="mb-20 flex items-end gap-6"
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:w-1/3"
             >
-              <h2 className="text-5xl md:text-7xl font-pixel text-white mix-blend-difference">EVENTS</h2>
-              <span className="text-neon-cyan font-mono text-lg pb-2">// FLAGSHIP_PROTOCOLS</span>
+              <h2 className="font-serif text-4xl md:text-5xl mb-8 leading-tight">Elevating the student experience through unified leadership.</h2>
+              <p className="text-white/50 leading-relaxed font-light">We are the bridge between the administration and the student body, dedicated to fostering an environment of innovation, culture, and sportsmanship. This is our legacy.</p>
             </motion.div>
+            
+            <div ref={imageRef} className="lg:w-2/3 h-[60vh] w-full relative overflow-hidden bg-[#111]">
+              <motion.img 
+                style={{ scale: imgScale }}
+                src="/council-group.jpg" 
+                alt="Student Council" 
+                className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-1000"
+              />
+            </div>
+          </div>
+        </section>
 
-            <div className="flex flex-col gap-12">
+        {/* EVENTS SECTION - ELEGANT LIST */}
+        <section id="events" className="py-32 px-8 md:px-16 border-t border-white/10">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex justify-between items-end mb-20">
+              <h2 className="font-serif text-5xl md:text-8xl">Initiatives</h2>
+              <span className="text-sm uppercase tracking-widest text-white/40 mb-4 hidden md:block">Flagship Events</span>
+            </div>
+            
+            <div className="flex flex-col border-t border-white/10">
               {[
-                { name: "CRMD", desc: "Flagship Cultural & Performing Arts Festival. The biggest stage in the circuit.", img: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070&auto=format&fit=crop" },
-                { name: "CRESCENDO", desc: "Inter-College Cultural Extravaganza. Battle of the colleges.", img: "https://images.unsplash.com/photo-1540039155732-684736382c4f?q=80&w=2070&auto=format&fit=crop" },
-                { name: "ATHLEAD", desc: "Ultimate Sports Tournament and Annual Meet. Pure adrenaline.", img: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=2070&auto=format&fit=crop" }
-              ].map((event, idx) => (
+                { name: "CRMD", desc: "Cultural & Performing Arts", year: "2026" },
+                { name: "Crescendo", desc: "Inter-College Extravaganza", year: "2026" },
+                { name: "Euphoria", desc: "Annual Festival", year: "2027" },
+                { name: "Athlead", desc: "Sports Tournament", year: "2027" }
+              ].map((event, i) => (
                 <motion.div 
                   key={event.name}
-                  initial={{ opacity: 0, y: 100 }}
+                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.8, delay: idx * 0.1, ease: [0.76, 0, 0.24, 1] }}
-                  className="group relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden cursor-pointer"
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.8, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                  className="group flex flex-col md:flex-row justify-between items-start md:items-center py-10 border-b border-white/10 cursor-pointer hover:px-6 transition-all duration-500"
                 >
-                  <img src={event.img} alt={event.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0b0d1b] via-[#0b0d1b]/50 to-transparent opacity-90 group-hover:opacity-70 transition-opacity duration-500" />
-                  
-                  <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-end">
-                    <div className="flex justify-between items-end">
-                      <div>
-                        <h3 className="text-4xl md:text-6xl font-pixel text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 group-hover:from-neon-cyan group-hover:to-hot-pink transition-all duration-500 mb-4">{event.name}</h3>
-                        <p className="font-mono text-gray-300 max-w-xl text-sm md:text-base">{event.desc}</p>
-                      </div>
-                      <div className="w-16 h-16 rounded-full border border-white/20 flex items-center justify-center backdrop-blur-md group-hover:border-neon-cyan group-hover:bg-neon-cyan/20 transition-all duration-500">
-                        <ArrowUpRight className="text-white group-hover:text-neon-cyan" size={32} />
-                      </div>
-                    </div>
+                  <h3 className="font-serif text-4xl md:text-6xl text-white/70 group-hover:text-white transition-colors">{event.name}</h3>
+                  <div className="flex items-center gap-8 mt-4 md:mt-0">
+                    <p className="text-white/40 font-light group-hover:text-white/80 transition-colors">{event.desc}</p>
+                    <span className="text-xs uppercase tracking-widest px-4 py-2 border border-white/20 rounded-full group-hover:border-white transition-colors">{event.year}</span>
                   </div>
                 </motion.div>
               ))}
@@ -233,176 +136,57 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ================= COUNCIL ROSTER (HOVER & REVEAL) ================= */}
-        <section id="council" className="py-32 bg-[#0b0d1b] relative overflow-hidden">
-          {/* Abstract background blobs */}
-          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-hot-pink/10 rounded-full blur-[120px] pointer-events-none translate-x-1/2 -translate-y-1/2" />
-          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-neon-cyan/10 rounded-full blur-[100px] pointer-events-none -translate-x-1/2 translate-y-1/2" />
-          
-          <div className="max-w-[1400px] mx-auto px-6 relative z-10">
-            <motion.div 
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8 }}
-              className="text-center mb-16"
-            >
-              <h2 className="text-5xl md:text-6xl font-pixel text-white mb-6">THE DIRECTORY</h2>
-              <p className="font-mono text-gray-400 max-w-2xl mx-auto">Meet the core personnel running the system. Elected leaders driving the narrative for the 2026-27 protocol.</p>
-            </motion.div>
-
-            {/* Huge Council Group Photo Parallax */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 1 }}
-              className="relative w-full h-[60vh] md:h-[80vh] mb-24 rounded-2xl overflow-hidden border border-white/10 group"
-            >
-              <img 
-                src="/council-group.jpg" 
-                alt="Student Council Core Team" 
-                className="w-full h-full object-cover filter contrast-125 saturate-150 group-hover:scale-105 transition-transform duration-[2s]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0b0d1b] via-transparent to-transparent opacity-80" />
-              <div className="absolute bottom-8 left-8">
-                <p className="font-pixel text-xl text-neon-cyan mb-2">CORE_COMMAND</p>
-                <p className="font-mono text-gray-300">STUDENTS' COUNCIL 2026-27</p>
-              </div>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* DIRECTORY SECTION */}
+        <section id="council" className="py-32 px-8 md:px-16">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="font-serif text-5xl md:text-8xl text-center mb-32">The Core</h2>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-24">
               {[
-                { name: "YASHDEEP K.", role: "PRESIDENT", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop", color: "neon-cyan" },
-                { name: "VEDANT K.", role: "GEN SECRETARY", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1000&auto=format&fit=crop", color: "hot-pink" },
-                { name: "DIVA S.", role: "CULTURAL SEC", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1000&auto=format&fit=crop", color: "amber" },
-                { name: "SOAH F.", role: "TECH SEC", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop", color: "neon-cyan" }
+                { name: "Yashdeep Kulkarni", role: "President" },
+                { name: "Vedant Kanekar", role: "General Secretary" },
+                { name: "Diva Sharma", role: "Cultural Secretary" },
+                { name: "Soah Fernandes", role: "Technical Secretary" }
               ].map((member, i) => (
                 <motion.div 
                   key={member.name}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.6, delay: i * 0.15 }}
-                  className="group relative bg-[#13162b] border border-white/5 overflow-hidden"
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 1, delay: i * 0.15, ease: [0.16, 1, 0.3, 1] }}
+                  className="group flex flex-col items-center text-center"
                 >
-                  {/* Image Container */}
-                  <div className="h-[400px] w-full overflow-hidden relative grayscale group-hover:grayscale-0 transition-all duration-700">
-                    <img src={member.img} alt={member.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                    
-                    {/* Cyberpunk Scanner effect */}
-                    <div className="absolute top-0 left-0 w-full h-1 bg-neon-cyan/50 opacity-0 group-hover:opacity-100 group-hover:animate-[scan_2s_ease-in-out_infinite]" />
-                    
-                    {/* Overlay gradient */}
-                    <div className={`absolute inset-0 bg-gradient-to-t from-[#0b0d1b] to-transparent opacity-100`} />
+                  <div className="w-full aspect-[3/4] bg-[#111] mb-8 overflow-hidden rounded-sm relative">
+                    <img 
+                      src={`https://images.unsplash.com/photo-15${34528741775 + i}?q=80&w=800&auto=format&fit=crop`} 
+                      alt={member.name} 
+                      className="w-full h-full object-cover filter grayscale opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" 
+                    />
                   </div>
-                  
-                  {/* Content */}
-                  <div className="absolute bottom-0 left-0 w-full p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                    <div className={`w-8 h-1 mb-4 ${member.color === 'neon-cyan' ? 'bg-neon-cyan' : member.color === 'hot-pink' ? 'bg-hot-pink' : 'bg-amber'}`} />
-                    <h3 className="font-pixel text-xl mb-2">{member.name}</h3>
-                    <p className="font-mono text-xs tracking-widest text-gray-400">{member.role}</p>
-                  </div>
+                  <h3 className="font-serif text-2xl mb-2">{member.name}</h3>
+                  <p className="text-sm uppercase tracking-widest text-white/40">{member.role}</p>
                 </motion.div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ================= HORIZONTAL SCROLL GALLERY ================= */}
-        <section id="gallery" ref={galleryRef} className="h-[300vh] bg-[#05060d] relative">
-          <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center">
+        {/* FOOTER */}
+        <footer className="py-20 px-8 md:px-16 bg-white text-black mt-32">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
+            <div>
+              <h2 className="font-serif text-6xl md:text-[10rem] leading-none tracking-tighter mb-8">STUCO.</h2>
+              <p className="text-black/60 max-w-sm font-light">Bandra West, Mumbai 400050<br/>Fr. Conceicao Rodrigues College of Engineering</p>
+            </div>
             
-            <div className="absolute top-20 left-10 z-20">
-              <h2 className="text-4xl md:text-6xl font-pixel text-transparent bg-clip-text bg-gradient-to-b from-white to-transparent opacity-30 pointer-events-none">
-                MEMORY_BANK
-              </h2>
-            </div>
-
-            <motion.div 
-              style={{ x: xGallery }}
-              className="flex gap-10 px-[10vw] w-[300vw]"
-            >
-              {[
-                "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070",
-                "https://images.unsplash.com/photo-1540039155732-684736382c4f?q=80&w=2070",
-                "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2070",
-                "https://images.unsplash.com/photo-1563841930606-67e2bce48b78?q=80&w=2070",
-                "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=2070"
-              ].map((src, i) => (
-                <div key={i} className="relative w-[60vw] md:w-[40vw] h-[60vh] flex-shrink-0 group overflow-hidden border border-white/10 hover:border-neon-cyan transition-colors duration-500 rounded-lg">
-                  <img src={src} alt="Gallery image" className="w-full h-full object-cover filter contrast-125 saturate-50 group-hover:saturate-150 transition-all duration-700 group-hover:scale-105" />
-                  <div className="absolute bottom-6 left-6 font-mono text-xs bg-black/50 backdrop-blur-md px-3 py-1 border border-white/20">
-                    IMG_REF_00{i+1}
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-          </div>
-        </section>
-
-        {/* ================= SPONSORS MARQUEE ================= */}
-        <section id="sponsors" className="py-24 bg-neon-cyan text-[#0b0d1b] overflow-hidden rotate-[-2deg] scale-110 border-y-[10px] border-[#0b0d1b]">
-          <div className="flex whitespace-nowrap animate-[marquee_20s_linear_infinite]">
-            {[...Array(2)].map((_, j) => (
-              <div key={j} className="flex items-center gap-16 px-8">
-                {["CANARA BANK", "UNSTOP", "DEVFOLIO", "KLAW", "STARBUCKS", "ASUS"].map((sponsor, i) => (
-                  <div key={i} className="flex items-center gap-8">
-                    <span className="font-pixel text-4xl md:text-6xl text-transparent [-webkit-text-stroke:2px_#0b0d1b]">{sponsor}</span>
-                    <span className="font-pixel text-4xl md:text-6xl">*</span>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ================= FOOTER ================= */}
-        <footer className="bg-[#0b0d1b] pt-32 pb-12 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20 pointer-events-none" />
-          
-          <div className="max-w-[1400px] mx-auto px-6 relative z-10">
-            <div className="flex flex-col md:flex-row justify-between items-end gap-12 mb-24 border-b border-white/10 pb-12">
-              <div>
-                <h2 className="text-6xl md:text-[8rem] font-pixel text-white mb-6 leading-none">STUCO</h2>
-                <div className="flex gap-6">
-                  <a href="#" className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-neon-cyan hover:border-neon-cyan hover:text-[#0b0d1b] transition-all font-pixel text-xs">
-                    GH
-                  </a>
-                  <a href="#" className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-hot-pink hover:border-hot-pink hover:text-white transition-all font-pixel text-xs">
-                    X
-                  </a>
-                  <a href="#" className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-amber hover:border-amber hover:text-[#0b0d1b] transition-all font-pixel text-xs">
-                    IG
-                  </a>
-                </div>
-              </div>
-              
-              <div className="flex flex-col items-start md:items-end font-mono text-sm text-gray-400 space-y-2">
-                <p>FR. CONCEICAO RODRIGUES COLLEGE OF ENGINEERING</p>
-                <p>BANDRA WEST, MUMBAI 400050</p>
-                <p className="mt-4 text-neon-cyan cursor-pointer hover:underline">SYS.ADMIN@FRCRCE.EDU.IN</p>
-              </div>
-            </div>
-
-            <div className="flex flex-col md:flex-row justify-between items-center font-mono text-xs text-gray-600 gap-4">
-              <p>COPYRIGHT &copy; 2026 STUCO. ALL SYSTEMS SECURE.</p>
-              <p>DESIGNED FOR HIGH-PERFORMANCE AWWARDS.</p>
+            <div className="flex flex-col gap-4 text-sm uppercase tracking-widest">
+              <a href="#" className="hover:underline">Instagram</a>
+              <a href="#" className="hover:underline">Contact</a>
+              <p className="text-black/40 mt-8">&copy; 2026 STUCO</p>
             </div>
           </div>
         </footer>
 
-        {/* Global Styles for Keyframes */}
-        <style dangerouslySetInnerHTML={{__html: `
-          @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100vh); }
-          }
-          @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-          }
-        `}} />
       </main>
     </ReactLenis>
   );
