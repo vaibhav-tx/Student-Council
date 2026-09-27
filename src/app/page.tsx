@@ -17,7 +17,7 @@ function Preloader() {
           initial={{ scale: 0.5, opacity: 0, filter: "blur(10px)" }}
           animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="w-40 h-40 md:w-56 md:h-56 rounded-full overflow-hidden shadow-2xl"
+          className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden shadow-2xl"
         >
           <img 
             src="/council-group.jpg" 
@@ -59,7 +59,11 @@ function Navbar() {
         layout
         className="flex items-center bg-white/90 backdrop-blur-md border border-black/10 shadow-lg rounded-full overflow-hidden p-2 cursor-pointer h-16 md:h-20"
       >
-        <motion.div layoutId="nav-logo" className="flex-shrink-0 flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden shadow-sm">
+        <motion.div 
+          layoutId="nav-logo" 
+          transition={{ layout: { duration: 1.8, ease: [0.16, 1, 0.3, 1] } }}
+          className="flex-shrink-0 flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden shadow-sm"
+        >
           <img 
             src="/council-group.jpg" 
             alt="Council Logo" 
