@@ -68,9 +68,9 @@ function Preloader({ phase }: { phase: number }) {
         <div className="flex flex-col items-center">
           <motion.div
             layoutId="nav-logo"
-            initial={{ scale: 1.2, opacity: 0, y: 30 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ scale: 0.6, opacity: 0, filter: "blur(10px)" }}
+            animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden shadow-2xl pointer-events-auto"
           >
             <img 
@@ -82,12 +82,12 @@ function Preloader({ phase }: { phase: number }) {
           
           <div className="overflow-hidden mt-8 flex flex-col justify-center min-h-[100px]">
             <AnimatePresence>
-              {phase === 0 && (
+              {phase === 1 && (
                 <motion.div
-                  initial={{ y: "-100%", opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ opacity: 0, y: "20%" }}
-                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                  initial={{ y: 20, opacity: 0, filter: "blur(5px)" }}
+                  animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, filter: "blur(10px)", scale: 0.95 }}
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                   className="flex flex-col items-center"
                 >
                   <h1 className="font-serif text-3xl md:text-5xl tracking-widest text-black mb-2">
@@ -255,9 +255,10 @@ export default function Home() {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase(1), 1800);
-    const t2 = setTimeout(() => setPhase(2), 2600);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    const t1 = setTimeout(() => setPhase(1), 600);   // Text appears
+    const t2 = setTimeout(() => setPhase(2), 2600);  // Text fades out
+    const t3 = setTimeout(() => setPhase(3), 3400);  // Logo morphs to nav
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
   
   // Hero Parallax
@@ -274,16 +275,16 @@ export default function Home() {
   return (
     <LayoutGroup>
       <AnimatePresence>
-        {phase < 2 && <Preloader key="preloader" phase={phase} />}
+        {phase < 3 && <Preloader key="preloader" phase={phase} />}
       </AnimatePresence>
       
       <Scene />
       <AudioController />
       
-      <main ref={containerRef} className={`relative bg-transparent text-black min-h-screen selection:bg-black selection:text-white font-sans overflow-x-hidden ${phase < 2 ? 'h-screen overflow-hidden' : ''}`}>
+      <main ref={containerRef} className={`relative bg-transparent text-black min-h-screen selection:bg-black selection:text-white font-sans overflow-x-hidden ${phase < 3 ? 'h-screen overflow-hidden' : ''}`}>
         
         {/* NAV */}
-        {phase === 2 && <Navbar />}
+        {phase === 3 && <Navbar />}
 
         {/* HERO */}
         <section className="relative h-[100svh] w-full flex flex-col justify-center px-8 md:px-16 overflow-hidden pt-20">
