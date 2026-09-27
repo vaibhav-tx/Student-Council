@@ -245,10 +245,30 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8 }}
-              className="text-center mb-24"
+              className="text-center mb-16"
             >
               <h2 className="text-5xl md:text-6xl font-pixel text-white mb-6">THE DIRECTORY</h2>
               <p className="font-mono text-gray-400 max-w-2xl mx-auto">Meet the core personnel running the system. Elected leaders driving the narrative for the 2026-27 protocol.</p>
+            </motion.div>
+
+            {/* Huge Council Group Photo Parallax */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 1 }}
+              className="relative w-full h-[60vh] md:h-[80vh] mb-24 rounded-2xl overflow-hidden border border-white/10 group"
+            >
+              <img 
+                src="/council-group.jpg" 
+                alt="Student Council Core Team" 
+                className="w-full h-full object-cover filter contrast-125 saturate-150 group-hover:scale-105 transition-transform duration-[2s]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0b0d1b] via-transparent to-transparent opacity-80" />
+              <div className="absolute bottom-8 left-8">
+                <p className="font-pixel text-xl text-neon-cyan mb-2">CORE_COMMAND</p>
+                <p className="font-mono text-gray-300">STUDENTS' COUNCIL 2026-27</p>
+              </div>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
