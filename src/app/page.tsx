@@ -1,114 +1,105 @@
 "use client";
 
-import { useRef, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef, useEffect, useState } from 'react';
+import { motion, useScroll, useTransform, useMotionValue, useSpring, useAnimationFrame } from 'framer-motion';
 
 function GalleryGlobe() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const itemsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const mouseRef = useRef({ x: 0, y: 0 });
-  const N = 60; 
-  
-  const points = useRef(Array.from({length: N}).map((_, i) => {
+  const rotationX = useMotionValue(0);
+  const rotationY = useMotionValue(0);
+  const smoothX = useSpring(rotationX, { damping: 20, stiffness: 100 });
+  const smoothY = useSpring(rotationY, { damping: 20, stiffness: 100 });
+
+  const isDragging = useRef(false);
+  const startMouse = useRef({ x: 0, y: 0 });
+  const startRot = useRef({ x: 0, y: 0 });
+  const velocity = useRef({ x: 0, y: 0.1 }); 
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    isDragging.current = true;
+    startMouse.current = { x: e.clientX, y: e.clientY };
+    startRot.current = { x: rotationX.get(), y: rotationY.get() };
+    velocity.current = { x: 0, y: 0 };
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging.current) return;
+    const dx = e.clientX - startMouse.current.x;
+    const dy = e.clientY - startMouse.current.y;
+    rotationY.set(startRot.current.y + dx * 0.5);
+    rotationX.set(startRot.current.x - dy * 0.5);
+    velocity.current = { x: -dy * 0.05, y: dx * 0.05 };
+  };
+
+  const handlePointerUp = () => {
+    isDragging.current = false;
+  };
+
+  useAnimationFrame(() => {
+    if (!isDragging.current) {
+      velocity.current.x *= 0.95;
+      velocity.current.y *= 0.95;
+      
+      if (Math.abs(velocity.current.y) < 0.15) {
+        velocity.current.y = velocity.current.y >= 0 ? 0.15 : -0.15;
+      }
+      if (Math.abs(velocity.current.x) < 0.01) {
+        velocity.current.x = 0;
+      }
+
+      rotationX.set(rotationX.get() + velocity.current.x);
+      rotationY.set(rotationY.get() + velocity.current.y);
+    }
+  });
+
+  const N = 65;
+  const cards = useRef(Array.from({ length: N }).map((_, i) => {
     const phi = Math.acos(-1 + (2 * i) / N);
     const theta = Math.sqrt(N * Math.PI) * phi;
     return {
-      x: Math.cos(theta) * Math.sin(phi),
-      y: Math.sin(theta) * Math.sin(phi),
-      z: Math.cos(phi)
+      lat: phi * (180 / Math.PI),
+      lng: theta * (180 / Math.PI)
     };
   })).current;
 
-  useEffect(() => {
-    let frame: number;
-    let rx = 0;
-    let ry = 0;
-    let speedX = 0.002;
-    let speedY = 0.002;
-    
-    const loop = () => {
-      const isMobile = window.innerWidth < 768;
-      const RADIUS = isMobile ? 180 : 350;
-      const FOCAL_LENGTH = isMobile ? 400 : 800;
-      
-      const targetSpeedX = mouseRef.current.y * 0.00002 + 0.002;
-      const targetSpeedY = mouseRef.current.x * 0.00002 + 0.002;
-      
-      speedX += (targetSpeedX - speedX) * 0.05;
-      speedY += (targetSpeedY - speedY) * 0.05;
-      
-      rx += speedX;
-      ry += speedY;
-      
-      const cosX = Math.cos(rx);
-      const sinX = Math.sin(rx);
-      const cosY = Math.cos(ry);
-      const sinY = Math.sin(ry);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
-      itemsRef.current.forEach((el, i) => {
-        if (!el) return;
-        const p = points[i];
-
-        const px = p.x * RADIUS;
-        const py = p.y * RADIUS;
-        const pz = p.z * RADIUS;
-
-        const y1 = py * cosX - pz * sinX;
-        const z1 = py * sinX + pz * cosX;
-        const x2 = px * cosY + z1 * sinY;
-        const z2 = -px * sinY + z1 * cosY;
-
-        const scale = FOCAL_LENGTH / (FOCAL_LENGTH - z2);
-        const opacity = (z2 + RADIUS) / (2 * RADIUS) * 0.8 + 0.2; 
-        const zIndex = Math.round(z2 + RADIUS);
-
-        el.style.transform = `translate3d(${x2}px, ${y1}px, 0) scale(${scale})`;
-        el.style.opacity = opacity.toString();
-        el.style.zIndex = zIndex.toString();
-      });
-
-      frame = requestAnimationFrame(loop);
-    };
-    frame = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(frame);
-  }, [points]);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    mouseRef.current = { x, y };
-  };
-
-  const handleMouseLeave = () => {
-    mouseRef.current = { x: 0, y: 0 };
-  };
+  if (!mounted) {
+    return <div className="w-full h-[60vh] md:h-[700px]" />;
+  }
 
   return (
     <div 
-      ref={containerRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="relative w-full h-[60vh] md:h-[90vh] flex items-center justify-center overflow-hidden bg-white"
+      className="relative w-full h-[60vh] md:h-[700px] flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing [perspective:1200px]"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
+      style={{ touchAction: 'none' }}
     >
-      {Array.from({length: N}).map((_, i) => (
-        <div
-          key={i}
-          ref={(el) => { itemsRef.current[i] = el; }}
-          className="absolute top-1/2 left-1/2 w-16 h-16 md:w-24 md:h-24 -ml-8 -mt-8 md:-ml-12 md:-mt-12"
-        >
-          <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-[1.8] cursor-pointer border border-black/5 bg-white">
+      <motion.div 
+        className="relative w-full h-full flex items-center justify-center [transform-style:preserve-3d]"
+        style={{ rotateX: smoothX, rotateY: smoothY }}
+      >
+        {cards.map((card, i) => (
+          <div 
+            key={i}
+            className="absolute w-20 h-20 md:w-28 md:h-28 rounded-[24px] overflow-hidden shadow-lg transition-transform duration-300 hover:!scale-150 bg-gray-200 cursor-pointer hover:z-50"
+            style={{
+              backfaceVisibility: "hidden",
+              transform: `rotateY(${card.lng}deg) rotateX(${card.lat}deg) translateZ(clamp(200px, 35vw, 400px))`
+            }}
+          >
             <img 
               src={`https://images.unsplash.com/photo-15${34528741775 + (i % 24)}?q=80&w=200&auto=format&fit=crop`} 
               alt="gallery"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover pointer-events-none"
             />
           </div>
-        </div>
-      ))}
+        ))}
+      </motion.div>
     </div>
-  )
+  );
 }
 
 export default function Home() {
