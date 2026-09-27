@@ -1,7 +1,115 @@
 "use client";
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+
+function GalleryGlobe() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const itemsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const mouseRef = useRef({ x: 0, y: 0 });
+  const N = 60; 
+  
+  const points = useRef(Array.from({length: N}).map((_, i) => {
+    const phi = Math.acos(-1 + (2 * i) / N);
+    const theta = Math.sqrt(N * Math.PI) * phi;
+    return {
+      x: Math.cos(theta) * Math.sin(phi),
+      y: Math.sin(theta) * Math.sin(phi),
+      z: Math.cos(phi)
+    };
+  })).current;
+
+  useEffect(() => {
+    let frame: number;
+    let rx = 0;
+    let ry = 0;
+    let speedX = 0.002;
+    let speedY = 0.002;
+    
+    const loop = () => {
+      const isMobile = window.innerWidth < 768;
+      const RADIUS = isMobile ? 180 : 350;
+      const FOCAL_LENGTH = isMobile ? 400 : 800;
+      
+      const targetSpeedX = mouseRef.current.y * 0.00002 + 0.002;
+      const targetSpeedY = mouseRef.current.x * 0.00002 + 0.002;
+      
+      speedX += (targetSpeedX - speedX) * 0.05;
+      speedY += (targetSpeedY - speedY) * 0.05;
+      
+      rx += speedX;
+      ry += speedY;
+      
+      const cosX = Math.cos(rx);
+      const sinX = Math.sin(rx);
+      const cosY = Math.cos(ry);
+      const sinY = Math.sin(ry);
+
+      itemsRef.current.forEach((el, i) => {
+        if (!el) return;
+        const p = points[i];
+
+        const px = p.x * RADIUS;
+        const py = p.y * RADIUS;
+        const pz = p.z * RADIUS;
+
+        const y1 = py * cosX - pz * sinX;
+        const z1 = py * sinX + pz * cosX;
+        const x2 = px * cosY + z1 * sinY;
+        const z2 = -px * sinY + z1 * cosY;
+
+        const scale = FOCAL_LENGTH / (FOCAL_LENGTH - z2);
+        const opacity = (z2 + RADIUS) / (2 * RADIUS) * 0.8 + 0.2; 
+        const zIndex = Math.round(z2 + RADIUS);
+
+        el.style.transform = `translate3d(${x2}px, ${y1}px, 0) scale(${scale})`;
+        el.style.opacity = opacity.toString();
+        el.style.zIndex = zIndex.toString();
+      });
+
+      frame = requestAnimationFrame(loop);
+    };
+    frame = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(frame);
+  }, [points]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    mouseRef.current = { x, y };
+  };
+
+  const handleMouseLeave = () => {
+    mouseRef.current = { x: 0, y: 0 };
+  };
+
+  return (
+    <div 
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative w-full h-[60vh] md:h-[90vh] flex items-center justify-center overflow-hidden bg-white"
+    >
+      {Array.from({length: N}).map((_, i) => (
+        <div
+          key={i}
+          ref={(el) => { itemsRef.current[i] = el; }}
+          className="absolute top-1/2 left-1/2 w-16 h-16 md:w-24 md:h-24 -ml-8 -mt-8 md:-ml-12 md:-mt-12"
+        >
+          <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-[1.8] cursor-pointer border border-black/5 bg-white">
+            <img 
+              src={`https://images.unsplash.com/photo-15${34528741775 + (i % 24)}?q=80&w=200&auto=format&fit=crop`} 
+              alt="gallery"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export default function Home() {
   const containerRef = useRef(null);
@@ -121,41 +229,9 @@ export default function Home() {
         </section>
 
         {/* GALLERY GLOBE SECTION */}
-        <section id="gallery" className="py-32 px-8 md:px-16 bg-white overflow-hidden flex flex-col items-center">
-          <h2 className="font-serif text-5xl md:text-8xl text-black mb-24 text-center">Gallery</h2>
-          
-          <div className="relative w-full h-[60vh] md:h-[80vh] flex items-center justify-center [perspective:2000px]">
-            <motion.div
-              className="relative w-full h-full flex items-center justify-center [transform-style:preserve-3d]"
-              animate={{ rotateY: [0, 360], rotateZ: [10, 10] }}
-              transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-            >
-              {Array.from({length: 80}).map((_, i) => {
-                const n = 80;
-                const phi = Math.acos(-1 + (2 * i) / n);
-                const theta = Math.sqrt(n * Math.PI) * phi;
-                
-                const rx = phi * (180 / Math.PI);
-                const ry = theta * (180 / Math.PI);
-                
-                return (
-                  <div
-                    key={i}
-                    className="absolute w-16 h-16 md:w-24 md:h-24 [backface-visibility:hidden] hover:scale-150 transition-transform duration-300 cursor-pointer z-10 hover:z-50"
-                    style={{
-                      transform: `rotateY(${ry}deg) rotateX(${rx}deg) translateZ(clamp(150px, 35vw, 400px))`
-                    }}
-                  >
-                    <img 
-                      src={`https://images.unsplash.com/photo-15${34528741775 + (i % 20)}?q=80&w=200&auto=format&fit=crop`} 
-                      alt="gallery"
-                      className="w-full h-full object-cover rounded-lg shadow-lg opacity-70 hover:opacity-100 transition-opacity bg-black/10"
-                    />
-                  </div>
-                )
-              })}
-            </motion.div>
-          </div>
+        <section id="gallery" className="pt-32 bg-white overflow-hidden flex flex-col items-center">
+          <h2 className="font-serif text-5xl md:text-8xl text-black mb-8 text-center">Gallery</h2>
+          <GalleryGlobe />
         </section>
 
         {/* DIRECTORY SECTION */}
