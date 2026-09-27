@@ -1,7 +1,48 @@
 "use client";
 
 import { useRef, useEffect, useState } from 'react';
-import { motion, useScroll, useTransform, useMotionValue, useSpring, useAnimationFrame } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring, useAnimationFrame, AnimatePresence } from 'framer-motion';
+
+function Preloader() {
+  return (
+    <motion.div
+      className="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center"
+      initial={{ y: 0 }}
+      exit={{ y: "-100%" }}
+      transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
+    >
+      <div className="flex flex-col items-center">
+        <motion.div
+          initial={{ scale: 0.5, opacity: 0, filter: "blur(10px)" }}
+          animate={{ scale: 1.1, opacity: 1, filter: "blur(0px)" }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <img 
+            src="/council-group.jpg" 
+            alt="Council Logo" 
+            className="w-40 h-40 md:w-56 md:h-56 rounded-full object-cover shadow-2xl"
+          />
+        </motion.div>
+        
+        <div className="overflow-hidden mt-8 flex flex-col justify-center">
+          <motion.div
+            initial={{ y: "-100%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col items-center"
+          >
+            <h1 className="font-serif text-3xl md:text-5xl tracking-widest text-black mb-2">
+              STUDENT COUNCIL
+            </h1>
+            <p className="text-sm md:text-base tracking-[0.4em] text-black/50 uppercase">
+              2026 — 2027
+            </p>
+          </motion.div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 function GalleryGlobe() {
   const rotationX = useMotionValue(0);
@@ -103,7 +144,15 @@ function GalleryGlobe() {
 }
 
 export default function Home() {
+  const [loading, setLoading] = useState(true);
   const containerRef = useRef(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setLoading(false);
+    }, 2500);
+    return () => clearTimeout(t);
+  }, []);
   
   // Hero Parallax
   const { scrollYProgress } = useScroll({
@@ -115,7 +164,11 @@ export default function Home() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   return (
-    <main ref={containerRef} className="bg-white text-black min-h-screen selection:bg-black selection:text-white font-sans overflow-x-hidden">
+    <>
+      <AnimatePresence mode="wait">
+        {loading && <Preloader key="preloader" />}
+      </AnimatePresence>
+      <main ref={containerRef} className={`bg-white text-black min-h-screen selection:bg-black selection:text-white font-sans overflow-x-hidden ${loading ? 'h-screen overflow-hidden' : ''}`}>
         
         {/* NAV */}
         <nav className="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-black/5">
@@ -277,5 +330,6 @@ export default function Home() {
         </footer>
 
       </main>
+    </>
   );
 }
