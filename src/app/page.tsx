@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { Calendar, Volume2, ArrowUpRight, Github, Twitter, Instagram } from 'lucide-react';
+import { Calendar, Volume2, ArrowUpRight } from 'lucide-react';
 import { ReactLenis } from '@studio-freight/react-lenis';
 
 // ==========================================
@@ -366,14 +366,14 @@ export default function Home() {
               <div>
                 <h2 className="text-6xl md:text-[8rem] font-pixel text-white mb-6 leading-none">STUCO</h2>
                 <div className="flex gap-6">
-                  <a href="#" className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-neon-cyan hover:border-neon-cyan hover:text-[#0b0d1b] transition-all">
-                    <Github size={20} />
+                  <a href="#" className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-neon-cyan hover:border-neon-cyan hover:text-[#0b0d1b] transition-all font-pixel text-xs">
+                    GH
                   </a>
-                  <a href="#" className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-hot-pink hover:border-hot-pink hover:text-white transition-all">
-                    <Twitter size={20} />
+                  <a href="#" className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-hot-pink hover:border-hot-pink hover:text-white transition-all font-pixel text-xs">
+                    X
                   </a>
-                  <a href="#" className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-amber hover:border-amber hover:text-[#0b0d1b] transition-all">
-                    <Instagram size={20} />
+                  <a href="#" className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-amber hover:border-amber hover:text-[#0b0d1b] transition-all font-pixel text-xs">
+                    IG
                   </a>
                 </div>
               </div>
