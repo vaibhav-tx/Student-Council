@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from 'react';
-import { motion, useScroll, useTransform, useMotionValue, useSpring, useAnimationFrame, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring, useAnimationFrame, AnimatePresence, LayoutGroup } from 'framer-motion';
 
 import dynamic from 'next/dynamic';
 
@@ -53,49 +53,56 @@ function AudioController() {
 
 function Preloader({ phase }: { phase: number }) {
   return (
-    <motion.div
-      className="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center"
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 1.5, ease: "easeInOut" }}
-    >
-      <div className="flex flex-col items-center">
-        <motion.div
-          layoutId="nav-logo"
-          initial={{ scale: 1.2, opacity: 0, y: 30 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-          className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden shadow-2xl"
-        >
-          <img 
-            src="/council-group.jpg" 
-            alt="Council Logo" 
-            className="w-full h-full object-cover"
-          />
-        </motion.div>
-        
-        <div className="overflow-hidden mt-8 flex flex-col justify-center min-h-[100px]">
-          <AnimatePresence>
-            {phase === 0 && (
-              <motion.div
-                initial={{ y: "-100%", opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ opacity: 0, y: "20%" }}
-                transition={{ duration: 0.6, ease: "easeInOut" }}
-                className="flex flex-col items-center"
-              >
-                <h1 className="font-serif text-3xl md:text-5xl tracking-widest text-black mb-2">
-                  STUDENT COUNCIL
-                </h1>
-                <p className="text-sm md:text-base tracking-[0.4em] text-black/50 uppercase">
-                  2026 — 2027
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+    <>
+      <motion.div
+        className="fixed inset-0 z-[90] bg-white"
+        initial={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 1.5, ease: "easeInOut" }}
+      />
+      <motion.div 
+        className="fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-none"
+        initial={{ opacity: 1 }}
+        exit={{ opacity: 1 }} // Prevent fading of the logo wrapper
+      >
+        <div className="flex flex-col items-center">
+          <motion.div
+            layoutId="nav-logo"
+            initial={{ scale: 1.2, opacity: 0, y: 30 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+            className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden shadow-2xl pointer-events-auto"
+          >
+            <img 
+              src="/council-group.jpg" 
+              alt="Council Logo" 
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
+          
+          <div className="overflow-hidden mt-8 flex flex-col justify-center min-h-[100px]">
+            <AnimatePresence>
+              {phase === 0 && (
+                <motion.div
+                  initial={{ y: "-100%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ opacity: 0, y: "20%" }}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                  className="flex flex-col items-center"
+                >
+                  <h1 className="font-serif text-3xl md:text-5xl tracking-widest text-black mb-2">
+                    STUDENT COUNCIL
+                  </h1>
+                  <p className="text-sm md:text-base tracking-[0.4em] text-black/50 uppercase">
+                    2026 — 2027
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </>
   );
 }
 
@@ -265,7 +272,7 @@ export default function Home() {
   const heroBgY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
 
   return (
-    <>
+    <LayoutGroup>
       <AnimatePresence>
         {phase < 2 && <Preloader key="preloader" phase={phase} />}
       </AnimatePresence>
@@ -276,7 +283,7 @@ export default function Home() {
       <main ref={containerRef} className={`relative bg-transparent text-black min-h-screen selection:bg-black selection:text-white font-sans overflow-x-hidden ${phase < 2 ? 'h-screen overflow-hidden' : ''}`}>
         
         {/* NAV */}
-        <Navbar />
+        {phase === 2 && <Navbar />}
 
         {/* HERO */}
         <section className="relative h-[100svh] w-full flex flex-col justify-center px-8 md:px-16 overflow-hidden pt-20">
@@ -421,6 +428,6 @@ export default function Home() {
         </footer>
 
       </main>
-    </>
+    </LayoutGroup>
   );
 }
