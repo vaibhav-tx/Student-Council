@@ -2,7 +2,6 @@
 
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ReactLenis } from '@studio-freight/react-lenis';
 
 export default function Home() {
   const containerRef = useRef(null);
@@ -17,8 +16,7 @@ export default function Home() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   return (
-    <ReactLenis root options={{ lerp: 0.15, smoothWheel: true }}>
-      <main ref={containerRef} className="bg-white text-black min-h-screen selection:bg-black selection:text-white font-sans">
+    <main ref={containerRef} className="bg-white text-black min-h-screen selection:bg-black selection:text-white font-sans overflow-x-hidden">
         
         {/* NAV */}
         <nav className="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-black/5">
@@ -212,6 +210,5 @@ export default function Home() {
         </footer>
 
       </main>
-    </ReactLenis>
   );
 }
