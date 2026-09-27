@@ -14,8 +14,8 @@ function Preloader({ phase }: { phase: number }) {
       <div className="flex flex-col items-center">
         <motion.div
           layoutId="nav-logo"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
+          initial={{ scale: 1.2, opacity: 0, y: 30 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
           transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
           className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden shadow-2xl"
         >
@@ -55,7 +55,7 @@ function Navbar() {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex justify-center pointer-events-auto">
+    <div className="fixed top-6 inset-x-0 z-50 flex justify-center pointer-events-auto w-full">
       <motion.nav 
         onHoverStart={() => setIsHovered(true)}
         onHoverEnd={() => setIsHovered(false)}
