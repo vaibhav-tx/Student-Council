@@ -7,20 +7,22 @@ function Preloader() {
   return (
     <motion.div
       className="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center"
-      initial={{ y: 0 }}
-      exit={{ y: "-100%" }}
-      transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.8, ease: "easeInOut" }}
     >
       <div className="flex flex-col items-center">
         <motion.div
+          layoutId="nav-logo"
           initial={{ scale: 0.5, opacity: 0, filter: "blur(10px)" }}
-          animate={{ scale: 1.1, opacity: 1, filter: "blur(0px)" }}
+          animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="w-40 h-40 md:w-56 md:h-56 rounded-full overflow-hidden shadow-2xl"
         >
           <img 
             src="/council-group.jpg" 
             alt="Council Logo" 
-            className="w-40 h-40 md:w-56 md:h-56 rounded-full object-cover shadow-2xl"
+            className="w-full h-full object-cover"
           />
         </motion.div>
         
@@ -28,7 +30,8 @@ function Preloader() {
           <motion.div
             initial={{ y: "-100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            exit={{ opacity: 0, y: "20%" }}
+            transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center"
           >
             <h1 className="font-serif text-3xl md:text-5xl tracking-widest text-black mb-2">
@@ -56,11 +59,11 @@ function Navbar() {
         layout
         className="flex items-center bg-white/90 backdrop-blur-md border border-black/10 shadow-lg rounded-full overflow-hidden p-2 cursor-pointer h-16 md:h-20"
       >
-        <motion.div layout className="flex-shrink-0 flex items-center justify-center">
+        <motion.div layoutId="nav-logo" className="flex-shrink-0 flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden shadow-sm">
           <img 
             src="/council-group.jpg" 
             alt="Council Logo" 
-            className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shadow-sm pointer-events-none" 
+            className="w-full h-full object-cover pointer-events-none" 
           />
         </motion.div>
 
@@ -206,7 +209,7 @@ export default function Home() {
 
   return (
     <>
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {loading && <Preloader key="preloader" />}
       </AnimatePresence>
       <main ref={containerRef} className={`bg-white text-black min-h-screen selection:bg-black selection:text-white font-sans overflow-x-hidden ${loading ? 'h-screen overflow-hidden' : ''}`}>
