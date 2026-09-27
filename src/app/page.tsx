@@ -3,20 +3,20 @@
 import { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, useAnimationFrame, AnimatePresence } from 'framer-motion';
 
-function Preloader() {
+function Preloader({ phase }: { phase: number }) {
   return (
     <motion.div
       className="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.8, ease: "easeInOut" }}
+      transition={{ duration: 1.5, ease: "easeInOut" }}
     >
       <div className="flex flex-col items-center">
         <motion.div
           layoutId="nav-logo"
-          initial={{ scale: 0.5, opacity: 0, filter: "blur(10px)" }}
-          animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
           className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden shadow-2xl"
         >
           <img 
@@ -26,21 +26,25 @@ function Preloader() {
           />
         </motion.div>
         
-        <div className="overflow-hidden mt-8 flex flex-col justify-center">
-          <motion.div
-            initial={{ y: "-100%", opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ opacity: 0, y: "20%" }}
-            transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col items-center"
-          >
-            <h1 className="font-serif text-3xl md:text-5xl tracking-widest text-black mb-2">
-              STUDENT COUNCIL
-            </h1>
-            <p className="text-sm md:text-base tracking-[0.4em] text-black/50 uppercase">
-              2026 — 2027
-            </p>
-          </motion.div>
+        <div className="overflow-hidden mt-8 flex flex-col justify-center min-h-[100px]">
+          <AnimatePresence>
+            {phase === 0 && (
+              <motion.div
+                initial={{ y: "-100%", opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ opacity: 0, y: "20%" }}
+                transition={{ duration: 0.6, ease: "easeInOut" }}
+                className="flex flex-col items-center"
+              >
+                <h1 className="font-serif text-3xl md:text-5xl tracking-widest text-black mb-2">
+                  STUDENT COUNCIL
+                </h1>
+                <p className="text-sm md:text-base tracking-[0.4em] text-black/50 uppercase">
+                  2026 — 2027
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </motion.div>
@@ -61,7 +65,7 @@ function Navbar() {
       >
         <motion.div 
           layoutId="nav-logo" 
-          transition={{ layout: { duration: 1.8, ease: [0.16, 1, 0.3, 1] } }}
+          transition={{ layout: { duration: 1.5, ease: [0.16, 1, 0.3, 1] } }}
           className="flex-shrink-0 flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden shadow-sm"
         >
           <img 
@@ -192,14 +196,13 @@ function GalleryGlobe() {
 }
 
 export default function Home() {
-  const [loading, setLoading] = useState(true);
+  const [phase, setPhase] = useState(0); 
   const containerRef = useRef(null);
 
   useEffect(() => {
-    const t = setTimeout(() => {
-      setLoading(false);
-    }, 2500);
-    return () => clearTimeout(t);
+    const t1 = setTimeout(() => setPhase(1), 1800);
+    const t2 = setTimeout(() => setPhase(2), 2600);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
   
   // Hero Parallax
@@ -214,9 +217,9 @@ export default function Home() {
   return (
     <>
       <AnimatePresence>
-        {loading && <Preloader key="preloader" />}
+        {phase < 2 && <Preloader key="preloader" phase={phase} />}
       </AnimatePresence>
-      <main ref={containerRef} className={`bg-white text-black min-h-screen selection:bg-black selection:text-white font-sans overflow-x-hidden ${loading ? 'h-screen overflow-hidden' : ''}`}>
+      <main ref={containerRef} className={`bg-white text-black min-h-screen selection:bg-black selection:text-white font-sans overflow-x-hidden ${phase < 2 ? 'h-screen overflow-hidden' : ''}`}>
         
         {/* NAV */}
         <Navbar />
