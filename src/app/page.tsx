@@ -3,6 +3,141 @@
 import { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, useAnimationFrame, AnimatePresence } from 'framer-motion';
 
+function WindParticles() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    let w = canvas.width = window.innerWidth;
+    let h = canvas.height = window.innerHeight;
+    
+    const handleResize = () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+    
+    const particles: {x: number, y: number, size: number, vx: number, vy: number}[] = [];
+    for(let i=0; i<300; i++) {
+      particles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        size: Math.random() * 2 + 0.5,
+        vx: Math.random() * 2 - 1,
+        vy: Math.random() * 2 - 1
+      });
+    }
+    
+    let mouseX = -1000;
+    let mouseY = -1000;
+    const onMouseMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    };
+    window.addEventListener('mousemove', onMouseMove);
+    
+    let time = 0;
+    let animationFrame: number;
+    
+    const animate = () => {
+      time += 0.01;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; // Dark, subtle particles
+      
+      particles.forEach(p => {
+        // Wind field based on sine waves mimicking Perlin noise
+        const windX = Math.sin(p.y * 0.003 + time) * 0.5 + 0.3; 
+        const windY = Math.cos(p.x * 0.003 + time) * 0.5;
+        
+        // Mouse repulsion
+        const dx = p.x - mouseX;
+        const dy = p.y - mouseY;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 150) {
+          const force = (150 - dist) / 150;
+          p.vx += (dx / dist) * force * 1;
+          p.vy += (dy / dist) * force * 1;
+        }
+        
+        p.vx += windX * 0.04;
+        p.vy += windY * 0.04;
+        
+        p.vx *= 0.95;
+        p.vy *= 0.95;
+        
+        p.x += p.vx;
+        p.y += p.vy;
+        
+        if (p.x > w + 10) p.x = -10;
+        if (p.x < -10) p.x = w + 10;
+        if (p.y > h + 10) p.y = -10;
+        if (p.y < -10) p.y = h + 10;
+        
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      
+      animationFrame = requestAnimationFrame(animate);
+    };
+    animate();
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', onMouseMove);
+      cancelAnimationFrame(animationFrame);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none" />;
+}
+
+function AudioController() {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.15;
+    }
+  }, []);
+  
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+  
+  return (
+    <div className="fixed bottom-8 right-8 z-[100]">
+      <audio 
+        ref={audioRef} 
+        src="https://actions.google.com/sounds/v1/weather/strong_wind.ogg" 
+        loop 
+      />
+      <button 
+        onClick={togglePlay}
+        className="w-12 h-12 rounded-full bg-black/5 backdrop-blur-md border border-black/10 text-black flex items-center justify-center shadow-lg hover:scale-110 hover:bg-black/10 transition-all"
+        title={isPlaying ? "Mute Ambient Sound" : "Play Ambient Sound"}
+      >
+        {isPlaying ? (
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
+        ) : (
+          <svg className="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        )}
+      </button>
+    </div>
+  );
+}
+
 function Preloader({ phase }: { phase: number }) {
   return (
     <motion.div
@@ -213,20 +348,38 @@ export default function Home() {
   
   const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+  const heroBgY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
 
   return (
     <>
       <AnimatePresence>
         {phase < 2 && <Preloader key="preloader" phase={phase} />}
       </AnimatePresence>
-      <main ref={containerRef} className={`bg-white text-black min-h-screen selection:bg-black selection:text-white font-sans overflow-x-hidden ${phase < 2 ? 'h-screen overflow-hidden' : ''}`}>
+      
+      <WindParticles />
+      <AudioController />
+      
+      <main ref={containerRef} className={`relative bg-transparent text-black min-h-screen selection:bg-black selection:text-white font-sans overflow-x-hidden ${phase < 2 ? 'h-screen overflow-hidden' : ''}`}>
         
         {/* NAV */}
         <Navbar />
 
         {/* HERO */}
-        <section className="relative h-[100svh] w-full flex flex-col justify-center px-8 md:px-16 overflow-hidden pt-20 bg-white">
-          <motion.div style={{ y: heroY, opacity: heroOpacity }} className="z-10 mt-10">
+        <section className="relative h-[100svh] w-full flex flex-col justify-center px-8 md:px-16 overflow-hidden pt-20">
+          <motion.div 
+            className="absolute inset-0 z-0 origin-bottom"
+            style={{ y: heroBgY, scale: heroScale }}
+          >
+            <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-10" />
+            <img 
+               src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=3000&auto=format&fit=crop" 
+               alt="Cinematic Background" 
+               className="w-full h-full object-cover opacity-60 grayscale mix-blend-multiply"
+            />
+          </motion.div>
+
+          <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 mt-10 text-black mix-blend-difference">
             <motion.h2 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -252,7 +405,7 @@ export default function Home() {
         </section>
 
         {/* ABOUT / MISSION */}
-        <section id="about" className="py-32 md:py-48 px-8 md:px-16 bg-[#f9f9f9]">
+        <section id="about" className="relative z-10 py-32 md:py-48 px-8 md:px-16 bg-white/95 backdrop-blur-md">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-20 items-center">
             <motion.div 
               initial={{ opacity: 0, x: -50 }}
@@ -343,7 +496,7 @@ export default function Home() {
         </section>
 
         {/* FOOTER */}
-        <footer className="py-20 px-8 md:px-16 bg-[#0a0a0a] text-white">
+        <footer className="relative z-10 py-20 px-8 md:px-16 bg-[#0a0a0a] text-white">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
             <div>
               <h2 className="font-serif text-6xl md:text-[10rem] leading-none tracking-tighter mb-8 text-white">COUNCIL.</h2>
