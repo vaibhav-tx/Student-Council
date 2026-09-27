@@ -44,6 +44,47 @@ function Preloader() {
   );
 }
 
+function Navbar() {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex justify-center pointer-events-auto">
+      <motion.nav 
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+        onClick={() => setIsHovered(!isHovered)}
+        layout
+        className="flex items-center bg-white/90 backdrop-blur-md border border-black/10 shadow-lg rounded-full overflow-hidden p-2 cursor-pointer h-16 md:h-20"
+      >
+        <motion.div layout className="flex-shrink-0 flex items-center justify-center">
+          <img 
+            src="/council-group.jpg" 
+            alt="Council Logo" 
+            className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shadow-sm pointer-events-none" 
+          />
+        </motion.div>
+
+        <AnimatePresence>
+          {isHovered && (
+            <motion.div 
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: "auto", opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="flex items-center gap-6 md:gap-8 overflow-hidden whitespace-nowrap pl-6 pr-4"
+            >
+              <a href="#about" className="text-xs md:text-sm uppercase tracking-widest text-black/70 hover:text-black transition-colors">About</a>
+              <a href="#events" className="text-xs md:text-sm uppercase tracking-widest text-black/70 hover:text-black transition-colors">Events</a>
+              <a href="#gallery" className="text-xs md:text-sm uppercase tracking-widest text-black/70 hover:text-black transition-colors">Gallery</a>
+              <a href="#council" className="text-xs md:text-sm uppercase tracking-widest text-black/70 hover:text-black transition-colors">Directory</a>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.nav>
+    </div>
+  );
+}
+
 function GalleryGlobe() {
   const rotationX = useMotionValue(0);
   const rotationY = useMotionValue(0);
@@ -171,18 +212,7 @@ export default function Home() {
       <main ref={containerRef} className={`bg-white text-black min-h-screen selection:bg-black selection:text-white font-sans overflow-x-hidden ${loading ? 'h-screen overflow-hidden' : ''}`}>
         
         {/* NAV */}
-        <nav className="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-black/5">
-          <div className="flex items-center gap-4 pointer-events-auto">
-            <img src="/council-group.jpg" alt="Council Logo" className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover border border-black/10 shadow-sm" />
-            <span className="font-serif text-xl md:text-2xl tracking-tighter text-black">STUCO.</span>
-          </div>
-          <div className="hidden md:flex gap-12 text-sm uppercase tracking-widest pointer-events-auto opacity-70 hover:opacity-100 transition-opacity text-black">
-            <a href="#about" className="hover:text-black/60 transition-colors">About</a>
-            <a href="#events" className="hover:text-black/60 transition-colors">Events</a>
-            <a href="#council" className="hover:text-black/60 transition-colors">Directory</a>
-          </div>
-          <div className="text-sm uppercase tracking-widest pointer-events-auto hidden sm:block text-black">Menu</div>
-        </nav>
+        <Navbar />
 
         {/* HERO */}
         <section className="relative h-[100svh] w-full flex flex-col justify-center px-8 md:px-16 overflow-hidden pt-20 bg-white">
@@ -209,17 +239,6 @@ export default function Home() {
               </h1>
             </motion.div>
           </motion.div>
-          
-          <div className="absolute bottom-12 left-8 md:left-16 flex flex-col gap-2">
-            <span className="text-xs uppercase tracking-widest text-black/40">Scroll to explore</span>
-            <div className="w-[1px] h-16 bg-black/20 relative overflow-hidden">
-              <motion.div 
-                className="w-full h-1/2 bg-black absolute top-0"
-                animate={{ y: ["-100%", "200%"] }}
-                transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-              />
-            </div>
-          </div>
         </section>
 
         {/* ABOUT / MISSION */}
@@ -317,14 +336,14 @@ export default function Home() {
         <footer className="py-20 px-8 md:px-16 bg-[#0a0a0a] text-white">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
             <div>
-              <h2 className="font-serif text-6xl md:text-[10rem] leading-none tracking-tighter mb-8 text-white">STUCO.</h2>
+              <h2 className="font-serif text-6xl md:text-[10rem] leading-none tracking-tighter mb-8 text-white">COUNCIL.</h2>
               <p className="text-white/60 max-w-sm font-light text-lg">Official Representative Body<br/>University Students' Council</p>
             </div>
             
             <div className="flex flex-col gap-4 text-sm uppercase tracking-widest">
               <a href="#" className="hover:underline">Instagram</a>
               <a href="#" className="hover:underline">Contact</a>
-              <p className="text-white/40 mt-8">&copy; 2026 STUCO</p>
+              <p className="text-white/40 mt-8">&copy; 2026 STUDENTS' COUNCIL</p>
             </div>
           </div>
         </footer>
