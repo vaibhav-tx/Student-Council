@@ -9,7 +9,7 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: 'STUDENTS\' COUNCIL | FRCRCE',
+  title: 'STUDENTS\' COUNCIL',
   description: 'Empowering Student Voice - Building Tomorrow\'s Leaders.',
 }
 
@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${inter.variable} ${playfair.variable} font-sans bg-[#0a0a0a] text-[#ededed] antialiased`}>
+      <body className={`${inter.variable} ${playfair.variable} font-sans bg-white text-black antialiased`}>
         {children}
       </body>
     </html>

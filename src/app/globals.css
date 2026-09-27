@@ -1,22 +1,22 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg-dark: #0a0a0a;
-  --color-text-light: #ededed;
+  --color-bg-light: #ffffff;
+  --color-text-dark: #0a0a0a;
   --font-serif: var(--font-playfair);
   --font-sans: var(--font-inter);
 }
 
 @layer base {
   body {
-    background-color: var(--color-bg-dark);
-    color: var(--color-text-light);
+    background-color: var(--color-bg-light);
+    color: var(--color-text-dark);
   }
 }
 
 @layer utilities {
   .text-outline {
-    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
+    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.2);
     color: transparent;
   }
 }
@@ -26,8 +26,8 @@
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: #f5f5f5;
 }
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: #ccc;
 }
