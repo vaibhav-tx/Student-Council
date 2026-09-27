@@ -130,10 +130,10 @@ export default function Home() {
             <motion.div
               className="relative w-full h-full flex items-center justify-center [transform-style:preserve-3d]"
               animate={{ rotateY: [0, 360], rotateZ: [10, 10] }}
-              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
             >
-              {Array.from({length: 24}).map((_, i) => {
-                const n = 24;
+              {Array.from({length: 80}).map((_, i) => {
+                const n = 80;
                 const phi = Math.acos(-1 + (2 * i) / n);
                 const theta = Math.sqrt(n * Math.PI) * phi;
                 
@@ -143,15 +143,15 @@ export default function Home() {
                 return (
                   <div
                     key={i}
-                    className="absolute w-24 h-24 md:w-40 md:h-40 [backface-visibility:hidden] hover:scale-110 transition-transform duration-300 cursor-pointer"
+                    className="absolute w-16 h-16 md:w-24 md:h-24 [backface-visibility:hidden] hover:scale-150 transition-transform duration-300 cursor-pointer z-10 hover:z-50"
                     style={{
                       transform: `rotateY(${ry}deg) rotateX(${rx}deg) translateZ(clamp(150px, 35vw, 400px))`
                     }}
                   >
                     <img 
-                      src={`https://images.unsplash.com/photo-15${34528741775 + i}?q=80&w=400&auto=format&fit=crop`} 
+                      src={`https://images.unsplash.com/photo-15${34528741775 + (i % 20)}?q=80&w=200&auto=format&fit=crop`} 
                       alt="gallery"
-                      className="w-full h-full object-cover rounded-lg shadow-2xl opacity-80 hover:opacity-100 transition-opacity"
+                      className="w-full h-full object-cover rounded-lg shadow-lg opacity-70 hover:opacity-100 transition-opacity bg-black/10"
                     />
                   </div>
                 )
