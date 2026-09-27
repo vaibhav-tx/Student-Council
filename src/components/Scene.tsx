@@ -104,7 +104,8 @@ function LeafParticles() {
   }, [particles]);
 
   useFrame((state) => {
-    if (!meshRef.current) return;
+    const mesh = meshRef.current;
+    if (!mesh) return;
     
     const mouseX = (mouse.x * viewport.width) / 2;
     const mouseY = (mouse.y * viewport.height) / 2;
@@ -228,10 +229,10 @@ function LeafParticles() {
       dummy.scale.set(particle.scale, particle.scale, particle.scale);
       dummy.updateMatrix();
 
-      meshRef.current.setMatrixAt(i, dummy.matrix);
+      mesh.setMatrixAt(i, dummy.matrix);
     });
     
-    meshRef.current.instanceMatrix.needsUpdate = true;
+    mesh.instanceMatrix.needsUpdate = true;
   });
 
   return (
