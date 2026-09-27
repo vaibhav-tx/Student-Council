@@ -3,98 +3,11 @@
 import { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, useAnimationFrame, AnimatePresence } from 'framer-motion';
 
-function WindParticles() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    let w = canvas.width = window.innerWidth;
-    let h = canvas.height = window.innerHeight;
-    
-    const handleResize = () => {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', handleResize);
-    
-    const particles: {x: number, y: number, size: number, vx: number, vy: number}[] = [];
-    for(let i=0; i<300; i++) {
-      particles.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        size: Math.random() * 2 + 0.5,
-        vx: Math.random() * 2 - 1,
-        vy: Math.random() * 2 - 1
-      });
-    }
-    
-    let mouseX = -1000;
-    let mouseY = -1000;
-    const onMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-    };
-    window.addEventListener('mousemove', onMouseMove);
-    
-    let time = 0;
-    let animationFrame: number;
-    
-    const animate = () => {
-      time += 0.01;
-      ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; // Dark, subtle particles
-      
-      particles.forEach(p => {
-        // Wind field based on sine waves mimicking Perlin noise
-        const windX = Math.sin(p.y * 0.003 + time) * 0.5 + 0.3; 
-        const windY = Math.cos(p.x * 0.003 + time) * 0.5;
-        
-        // Mouse repulsion
-        const dx = p.x - mouseX;
-        const dy = p.y - mouseY;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < 150) {
-          const force = (150 - dist) / 150;
-          p.vx += (dx / dist) * force * 1;
-          p.vy += (dy / dist) * force * 1;
-        }
-        
-        p.vx += windX * 0.04;
-        p.vy += windY * 0.04;
-        
-        p.vx *= 0.95;
-        p.vy *= 0.95;
-        
-        p.x += p.vx;
-        p.y += p.vy;
-        
-        if (p.x > w + 10) p.x = -10;
-        if (p.x < -10) p.x = w + 10;
-        if (p.y > h + 10) p.y = -10;
-        if (p.y < -10) p.y = h + 10;
-        
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      
-      animationFrame = requestAnimationFrame(animate);
-    };
-    animate();
-    
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('mousemove', onMouseMove);
-      cancelAnimationFrame(animationFrame);
-    };
-  }, []);
+import dynamic from 'next/dynamic';
 
-  return <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none" />;
-}
+const Scene = dynamic(() => import('@/components/Scene'), {
+  ssr: false,
+});
 
 function AudioController() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -357,7 +270,7 @@ export default function Home() {
         {phase < 2 && <Preloader key="preloader" phase={phase} />}
       </AnimatePresence>
       
-      <WindParticles />
+      <Scene />
       <AudioController />
       
       <main ref={containerRef} className={`relative bg-transparent text-black min-h-screen selection:bg-black selection:text-white font-sans overflow-x-hidden ${phase < 2 ? 'h-screen overflow-hidden' : ''}`}>
@@ -371,15 +284,15 @@ export default function Home() {
             className="absolute inset-0 z-0 origin-bottom"
             style={{ y: heroBgY, scale: heroScale }}
           >
-            <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-10" />
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px] z-10" />
             <img 
-               src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=3000&auto=format&fit=crop" 
-               alt="Cinematic Background" 
-               className="w-full h-full object-cover opacity-60 grayscale mix-blend-multiply"
+               src="/hero-bg.jpg" 
+               alt="Purple Blossom Lake" 
+               className="w-full h-full object-cover opacity-90"
             />
           </motion.div>
 
-          <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 mt-10 text-black mix-blend-difference">
+          <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 mt-10 text-white mix-blend-normal">
             <motion.h2 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
