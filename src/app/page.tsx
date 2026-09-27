@@ -17,7 +17,7 @@ export default function Home() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   return (
-    <ReactLenis root options={{ lerp: 0.05, smoothWheel: true }}>
+    <ReactLenis root options={{ lerp: 0.15, smoothWheel: true }}>
       <main ref={containerRef} className="bg-white text-black min-h-screen selection:bg-black selection:text-white font-sans">
         
         {/* NAV */}
@@ -119,6 +119,44 @@ export default function Home() {
                 </motion.div>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* GALLERY GLOBE SECTION */}
+        <section id="gallery" className="py-32 px-8 md:px-16 bg-white overflow-hidden flex flex-col items-center">
+          <h2 className="font-serif text-5xl md:text-8xl text-black mb-24 text-center">Gallery</h2>
+          
+          <div className="relative w-full h-[60vh] md:h-[80vh] flex items-center justify-center [perspective:2000px]">
+            <motion.div
+              className="relative w-full h-full flex items-center justify-center [transform-style:preserve-3d]"
+              animate={{ rotateY: [0, 360], rotateZ: [10, 10] }}
+              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+            >
+              {Array.from({length: 24}).map((_, i) => {
+                const n = 24;
+                const phi = Math.acos(-1 + (2 * i) / n);
+                const theta = Math.sqrt(n * Math.PI) * phi;
+                
+                const rx = phi * (180 / Math.PI);
+                const ry = theta * (180 / Math.PI);
+                
+                return (
+                  <div
+                    key={i}
+                    className="absolute w-24 h-24 md:w-40 md:h-40 [backface-visibility:hidden] hover:scale-110 transition-transform duration-300 cursor-pointer"
+                    style={{
+                      transform: `rotateY(${ry}deg) rotateX(${rx}deg) translateZ(clamp(150px, 35vw, 400px))`
+                    }}
+                  >
+                    <img 
+                      src={`https://images.unsplash.com/photo-15${34528741775 + i}?q=80&w=400&auto=format&fit=crop`} 
+                      alt="gallery"
+                      className="w-full h-full object-cover rounded-lg shadow-2xl opacity-80 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+                )
+              })}
+            </motion.div>
           </div>
         </section>
 
